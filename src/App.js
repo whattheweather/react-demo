@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router,Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router,Route, Link, Redirect } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
 import 'antd/dist/antd.css'; 
-import Companies from './Companies.js'
+import DoCompanies from './DoCompanies.js';
+import DoSelection from './DoSelection.js';
 import { Layout, Menu, Icon } from 'antd';
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -100,7 +101,7 @@ export default class App extends Component {
     //     </Col>
     //   </Row>
     // </Grid>
-    return <Layout>
+    return <Router><Layout>
       <Sider style={{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0 }}>
         <div className="logo" />
         <Menu
@@ -110,7 +111,7 @@ export default class App extends Component {
           onSelect={({item,key,selectedKeys})=>this.handleSelect({item,key,selectedKeys})}
         >
           <Menu.Item key="do">
-            <span className="nav-text">现有支撑单位</span>
+            <Link to='/do' className="nav-text">现有支撑单位</Link>
           </Menu.Item>
           <Menu.Item key="todo">
             <span className="nav-text">待申请单位</span>
@@ -121,14 +122,22 @@ export default class App extends Component {
         </Menu>
       </Sider>
       <Layout style={{ marginLeft: 200 }}>
-        <Header style={{ background: '#fff', padding: 0 }} />
+        <Header style={{ background: '#fff', padding: 0 }}>
+          <DoSelection />
+        </Header>
         <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
-          {/* <Companies style={{ padding: 24, background: '#fff', textAlign: 'center' }}>
-            
-          </Companies> */}
+          <div style={{ padding: 24, background: '#fff', textAlign: 'center' }}>
+            <Route exact path='/' render={()=><Redirect to='/do'/>}/>
+            <Route path='/do' component={DoCompanies}/>
+            {/* <Route path='/todo' component={TodoCompanies}/>
+            <Route path='/did' component={DidCompanies}/> */}
+            {/* <Companies style={{ padding: 24, background: '#fff', textAlign: 'center' }}>
+              
+            </Companies> */}
+          </div>
         </Content>
       </Layout>
-    </Layout>
+    </Layout></Router>
   }
 }
 
