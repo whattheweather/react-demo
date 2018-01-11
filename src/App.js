@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router,Route, Link, Redirect } from 'react-router-dom';
-import logo from './logo.svg';
 import './App.css';
-import 'antd/dist/antd.css'; 
-import DoCompanies from './DoCompanies.js';
-import DoSelection from './DoSelection.js';
-import { Layout, Menu, Icon } from 'antd';
-const { Header, Content, Footer, Sider } = Layout;
-
+import Companies from './Companies.js';
+import CompanyDetail from './CompanyDetail.js';
+import { Layout, Menu } from 'antd';
+const { Header, Content, Footer } = Layout;
 
 export default class App extends Component {
   constructor(props) {
@@ -41,102 +38,44 @@ export default class App extends Component {
     })
   }
   render() {
-    // return <Grid style={{margin:'40px 0',}}>
-    //   <Modal show={this.state.editModal}>
-    //     <Modal.Body>
-    //       <Form inline>
-    //         {(() => {
-    //           return this.editData.map((value, index) =>
-    //             <FormControl style={{margin:'10px 5px'}} key={index} type="text" defaultValue={value}/>)
-    //         })()}
-    //       </Form>
-    //     </Modal.Body>
-    //     <Modal.Footer>
-    //       <Button bsStyle="success" onClick={()=>this.saveEdit()}>保存</Button>
-    //       <Button onClick={()=>this.closeModal()}>取消</Button>
-    //     </Modal.Footer>
-    //   </Modal>
-    //   <Modal show={this.state.moveModal}>
-    //     <Modal.Body>
-    //       <h4>将这条数据移动到</h4>
-    //       <ButtonGroup>
-    //           {(() => {
-    //             if (this.state.selected !== 'do')
-    //               return <Button value={'do'}>现有支撑单位</Button>
-    //           })()}
-    //           {(() => {
-    //             if (this.state.selected !== 'will')
-    //               return <Button value={'will'}>待申请单位</Button>
-    //           })()}
-    //           {(() => {
-    //             if (this.state.selected !== 'did')
-    //               return <Button value={'do'}>失效单位</Button>
-    //           })()}
-    //     </ButtonGroup>
-    //     </Modal.Body>
-    //     <Modal.Footer>
-    //       <Button bsStyle="success" onClick={()=>this.saveMove()}>保存</Button>
-    //       <Button onClick={()=>this.closeModal()}>取消</Button>
-    //     </Modal.Footer>
-    //   </Modal>
-    //   <Row>
-    //     <Col xs={2} md={2} lg={2}>
-    //     <Nav
-    //       bsStyle="pills"
-    //       style={{textAlign: 'center'}}
-    //       activeKey={this.state.selected}
-    //       onSelect={(selectedKey) => this.handleSelect(selectedKey)}
-    //     >
-    //       <NavItem eventKey={'do'}>现有支撑单位</NavItem>
-    //       <NavItem eventKey={'will'}>待申请单位</NavItem>
-    //       <NavItem eventKey={'did'}>失效单位</NavItem>
-    //     </Nav>
-    //     </Col>
-    //     <Col xs={10} md={10} lg={10}>
-    //     <Content
-    //       selected={this.state.selected}
-    //       onEdit={(event,tableHeader)=>this.handleEdit(event,tableHeader)}
-    //       onMove={event=>this.handleMove(event)}
-    //     />
-    //     </Col>
-    //   </Row>
-    // </Grid>
-    return <Router><Layout>
-      <Sider style={{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0 }}>
-        <div className="logo" />
+    return <Router><Layout className="layout">
+      <Header>
+        <h1 style={{
+          float: 'left',
+          color: '#fff',
+          paddingRight: '30px',
+          lineHeight: '59px',
+        }}>CNNVD 支撑单位管理系统</h1>
         <Menu
           theme="dark"
-          mode="inline"
-          defaultSelectedKeys={['do']}
-          onSelect={({item,key,selectedKeys})=>this.handleSelect({item,key,selectedKeys})}
+          mode="horizontal"
+          defaultSelectedKeys={['2']}
+          style={{ lineHeight: '64px' }}
         >
           <Menu.Item key="do">
-            <Link to='/do' className="nav-text">现有支撑单位</Link>
+            <Link to='/supportcompanies/do' className="nav-text">现有支撑单位</Link>
           </Menu.Item>
           <Menu.Item key="todo">
-            <span className="nav-text">待申请单位</span>
+            <Link to='/supportcompanies/todo' className="nav-text">待申请单位</Link>
           </Menu.Item>
           <Menu.Item key="did">
-            <span className="nav-text">失效单位</span>
+            <Link to='/supportcompanies/did' className="nav-text">失效单位</Link>
           </Menu.Item>
         </Menu>
-      </Sider>
-      <Layout style={{ marginLeft: 200 }}>
-        <Header style={{ background: '#fff', padding: 0 }}>
-          <DoSelection />
-        </Header>
-        <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
-          <div style={{ padding: 24, background: '#fff', textAlign: 'center' }}>
-            <Route exact path='/' render={()=><Redirect to='/do'/>}/>
-            <Route path='/do' component={DoCompanies}/>
-            {/* <Route path='/todo' component={TodoCompanies}/>
-            <Route path='/did' component={DidCompanies}/> */}
-            {/* <Companies style={{ padding: 24, background: '#fff', textAlign: 'center' }}>
-              
-            </Companies> */}
-          </div>
-        </Content>
-      </Layout>
+      </Header>
+      <Content style={{ padding: '0 50px' }}>
+        <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
+          <Route exact path='/' render={()=><Redirect to='/supportcompanies/do'/>}/>
+          <Route exact path='/supportcompanies' render={()=><Redirect to='/supportcompanies/do'/>}/>
+          <Route path='/supportcompanies/do' exact component={Companies}/>
+          <Route path='/supportcompanies/todo' exact component={Companies}/>
+          <Route path='/supportcompanies/did' exact component={Companies}/>
+          <Route path='/supportcompanies/:path/:id' component={CompanyDetail}/>
+        </div>
+      </Content>
+      <Footer style={{ textAlign: 'center' }}>
+        China National Vulnerability Database of Information Security
+      </Footer>
     </Layout></Router>
   }
 }
