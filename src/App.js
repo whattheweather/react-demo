@@ -1,41 +1,15 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Router,Route, Link, Redirect } from 'react-router-dom';
-import './App.css';
-import Companies from './Companies.js';
-import CompanyDetail from './CompanyDetail.js';
-import { Layout, Menu } from 'antd';
-const { Header, Content, Footer } = Layout;
+import React, { Component } from 'react'
+import { BrowserRouter as Router,Route, Link, Redirect } from 'react-router-dom'
+import './App.css'
+import Companies from './Companies.js'
+import CompanyDetail from './CompanyDetail1.js'
+import { Layout, Menu } from 'antd'
+const { Header, Content, Footer } = Layout
 
 export default class App extends Component {
   constructor(props) {
-    super(props);
-    this.state = {
-      selected: 'do',
-      editModal: false,
-      moveModal: false,
-    }
-    this.editData = [];
-    this.moveData = {};
-  }
-  handleSelect({item,key,selectedKeys}) {
-    this.setState({ selected: selectedKeys[0] });
-  }
-  handleEdit(event, tableHeader) {
-    let data = [];
-    let trParent = event.target.parentNode.parentNode;
-    for (let i = 0; i < trParent.cells.length - 1; i ++)
-      data[i] = trParent.cells[i].innerHTML;
-    this.editData = data;
-    this.setState({ editModal: true, });
-  }
-  handleMove(event) {
-    this.setState({ moveModal: true, })
-  }
-  closeModal() {
-    this.setState({
-      editModal: false,
-      moveModal: false,
-    })
+    super(props)
+    this.state = { selected: 'do', }
   }
   render() {
     return <Router><Layout className="layout">
@@ -70,7 +44,7 @@ export default class App extends Component {
           <Route path='/supportcompanies/do' exact component={Companies}/>
           <Route path='/supportcompanies/todo' exact component={Companies}/>
           <Route path='/supportcompanies/did' exact component={Companies}/>
-          <Route path='/supportcompanies/:path/:id' component={CompanyDetail}/>
+          <Route path='/supportcompanies/:path/:id/detail' exact component={CompanyDetail}/>
         </div>
       </Content>
       <Footer style={{ textAlign: 'center' }}>

@@ -14,11 +14,8 @@ const EditableCell = ({ editable, value, onChange }) => (
 export default class DataTable extends Component {
   constructor(props) {
     super(props)
-    this.cacheData = this.props.cacheData
-    this.lots = this.props.lots
     this.count = 1
-    let url = this.props.url
-    let path = url.split('/')
+    let path = this.props.url.split('/')
     this.path = path[path.length - 1]
     this.columns = [{
       // 0
@@ -104,9 +101,9 @@ export default class DataTable extends Component {
                   &nbsp;|&nbsp;
                   <a onClick={() => this.move(record._id)}>移动至失效单位</a>
                   &nbsp;|&nbsp;
-                  <Link to={this.props.url+'/'+record._id}>贡献详情</Link>
+                  <Link to={this.props.url+'/'+record._id+'/detail'}>贡献详情</Link>
                   &nbsp;|&nbsp;
-                  <Popconfirm title="确认删除吗？" onConfirm={() => this.delete(record._id)}>
+                  <Popconfirm title="确认删除吗？" onConfirm={()=>this.delete(record._id)}>
                     <a>删除</a>
                   </Popconfirm>
                 </span>
@@ -134,9 +131,9 @@ export default class DataTable extends Component {
                   &nbsp;|&nbsp;
                   <a onClick={() => this.move(record._id)}>移动至现有支持单位</a>
                   &nbsp;|&nbsp;
-                  <Link to={this.props.url+'/'+record._id}>贡献详情</Link>
+                  <Link to={this.props.url+'/'+record._id+'/detail'}>贡献详情</Link>
                   &nbsp;|&nbsp;
-                  <Popconfirm title="确认删除吗？" onConfirm={() => this.delete(record._id)}>
+                  <Popconfirm title="确认删除吗？" onConfirm={()=>this.delete(record._id)}>
                     <a>删除</a>
                   </Popconfirm>
                 </span>
@@ -162,9 +159,9 @@ export default class DataTable extends Component {
               : <span>
                   <a onClick={() => this.edit(record._id)}>编辑</a>
                   &nbsp;|&nbsp;
-                  <Link to={this.props.url+'/'+record._id}>贡献详情</Link>
+                  <Link to={this.props.url+'/'+record._id+'/detail'}>贡献详情</Link>
                   &nbsp;|&nbsp;
-                  <Popconfirm title="确认删除吗？" onConfirm={() => this.delete(record._id)}>
+                  <Popconfirm title="确认删除吗？" onConfirm={()=>this.delete(record._id)}>
                     <a>删除</a>
                   </Popconfirm>
                 </span>
@@ -190,11 +187,16 @@ export default class DataTable extends Component {
         break
       default:
     }
+    this.state = { selectedRowKeys: [] }
   }
-  componentDidUpdate() {
-    this.count = 1
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.selectedRows.length)
+      this.setState({ selectedRowKeys: [] })
   }
   componentWillUpdate() {
+    this.count = 1
+  }
+  componentDidUpdate() {    
     this.count = 1
   }
   renderColumns(text, record, column) {
@@ -268,8 +270,17 @@ export default class DataTable extends Component {
       }
     })
   }
+  onSelectChange(selectedRowKeys) {
+    this.props.onSelect(selectedRowKeys)
+    this.setState({ selectedRowKeys });
+  }
   render() {
+    const rowSelection = {
+      selectedRowKeys: this.state.selectedRowKeys,
+      onChange: keys => this.onSelectChange(keys),
+    };
     return <Table
+      rowSelection={rowSelection}
       rowKey="_id"
       bordered
       dataSource={this.props.data}
