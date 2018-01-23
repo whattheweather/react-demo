@@ -1,15 +1,14 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router,Route, Link, Redirect } from 'react-router-dom'
 import './App.css'
-import Companies from './Companies.js'
-import CompanyDetail from './CompanyDetail1.js'
+import CompanyDetail from './CompanyDetail.js'
+import CompanyBrief from './CompanyBrief.js'
 import { Layout, Menu } from 'antd'
 const { Header, Content, Footer } = Layout
 
 export default class App extends Component {
   constructor(props) {
     super(props)
-    this.state = { selected: 'do', }
   }
   render() {
     return <Router><Layout className="layout">
@@ -23,28 +22,28 @@ export default class App extends Component {
         <Menu
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={['2']}
+          defaultSelectedKeys={['do']}
           style={{ lineHeight: '64px' }}
         >
           <Menu.Item key="do">
-            <Link to='/supportcompanies/do' className="nav-text">现有支撑单位</Link>
+            <Link to='/zcdw/do' className="nav-text">现有支撑单位</Link>
           </Menu.Item>
           <Menu.Item key="todo">
-            <Link to='/supportcompanies/todo' className="nav-text">待申请单位</Link>
+            <Link to='/zcdw/todo' className="nav-text">待申请单位</Link>
           </Menu.Item>
           <Menu.Item key="did">
-            <Link to='/supportcompanies/did' className="nav-text">失效单位</Link>
+            <Link to='/zcdw/did' className="nav-text">失效单位</Link>
           </Menu.Item>
         </Menu>
       </Header>
       <Content style={{ padding: '0 50px' }}>
         <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
-          <Route exact path='/' render={()=><Redirect to='/supportcompanies/do'/>}/>
-          <Route exact path='/supportcompanies' render={()=><Redirect to='/supportcompanies/do'/>}/>
-          <Route path='/supportcompanies/do' exact component={Companies}/>
-          <Route path='/supportcompanies/todo' exact component={Companies}/>
-          <Route path='/supportcompanies/did' exact component={Companies}/>
-          <Route path='/supportcompanies/:path/:id/detail' exact component={CompanyDetail}/>
+          <Route exact path='/' render={()=><Redirect to='/zcdw/do'/>}/>
+          <Route exact path='/zcdw' render={()=><Redirect to='/zcdw/do'/>}/>
+          <Route path='/zcdw/do' exact component={CompanyBrief}/>
+          <Route path='/zcdw/todo' exact component={CompanyBrief}/>
+          <Route path='/zcdw/did' exact component={CompanyBrief}/>
+          <Route path='/zcdw/:path/:id/detail' exact component={CompanyDetail}/>
         </div>
       </Content>
       <Footer style={{ textAlign: 'center' }}>

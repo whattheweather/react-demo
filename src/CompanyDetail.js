@@ -1,158 +1,136 @@
 import React, { Component } from 'react'
-import { Get, Put, Delete } from './Service.js'
-import { Card, Form, Input, Button, message, Upload, Popconfirm } from 'antd';
-import Download from 'downloadjs'
-const FormItem = Form.Item;
+import { Get } from './Service.js'
+import { Row, Col, Upload, Button, message, List } from 'antd'
+import echarts from 'echarts'
 
 export default class CompanyDetail extends Component {
     constructor(props) {
         super(props)
-        this.state = { detail: {} }
-        this.data = { detail: {} }
+        this.items = ['重大漏洞及安全事件预警支撑', '未公开漏洞提交', '安全报告提交',
+            '厂商漏洞修复与销控情况', 'CNNVD数据使用', '沟通配合情况', '会议活动支撑',
+            '宣传推广支撑', '产品试用', '其他支撑']
+        this.fullDetail = {}
+        this.state = { 
+            name: '',
+            detail: {},
+            showMore: {},
+        }
     }
     componentDidMount() {
-        Get(this.props.match.url).then(res => res.json()).then(res => {
-            let detail = res.detail ? res.detail : {}
-            let report = res.report ? res.report : {}
-            let emergency = res.emergency ? res.emergency : {}
-            let other = res.other ? res.other : {}
-            this.setState({
-                detail: detail,
-                name: res.name,
-                report: report.filename,
-                emergency: emergency.filename,
-                other: other.filename,
+        Get(this.props.match.url).then(res => res.json())
+            .then(res => {
+                this.sliceDetail(res.detail)
+                this.setState({ name: res.name })
             })
+    }
+    componentDidUpdate() {
+        let data = []
+        for (let item of this.items)
+            this.state.detail[item]
+                // && this.state.detail[item].length
+                    && data.push({
+                        name: item,
+                        value: this.state.detail[item].length
+                    })
+        echarts.init(document.getElementById('main')).setOption({
+            series: {
+                type: 'pie',
+                data: data,
+            },
+            tooltip : {
+                trigger: 'item',
+                formatter: "{c} ({d}%)"
+            },
+        });
+    }
+    sliceDetail(data) {
+        console.log(data)
+        this.fullDetail = data
+        let tmpDetail = {}
+        let showMore = {}
+        for (let [key, value] of Object.entries(data))
+            if (value.length > 10) {
+                tmpDetail[key] = value.slice(0, 10)
+                showMore[key] = true
+            }
+        let detail = {...this.fullDetail, ...tmpDetail}
+        this.setState({
+            detail,
+            showMore,
         })
     }
-    handleSubmit(e) {
-        e.preventDefault()
-        Put(this.props.match.url, { detail: this.state.detail })
-            .then(res => {
-                if (res.status === 200) { message.success('保存成功') }
-                else { message.error('保存失败') }
-            })
-    }
-    handleChange(e) {
-        let newObj = this.state.detail
-        newObj[e.target.id] = e.target.value
-        this.setState({ detail: newObj })
-    }
-    handleUpload(info, type) {
-        if (info.file.status === 'done') {
-            message.success(`${info.file.name} 上传成功`)
-            let obj = this.state
-            obj[type] = info.file.name
-            this.setState(obj)
-        } else if (info.file.status === 'error') {
+    handleChange(info) {
+        if (info.file.status === 'done')
+            this.sliceDetail(info.file.response)
+        else if (info.file.status === 'error')
             message.error(`${info.file.name} 上传失败`)
-        }
     }
-    handleDownload(type) {
-        Get(this.props.match.url + '/detail/pdf/' + type)
-            .then(res => res.blob()).then(blob => {
-                console.log(this.state)
-                let name = this.state[type]
-                console.log(this.state[type])
-                Download(blob, name)
-            })
-    }
-    handleDelete(type) {
-        Delete(this.props.match.url + '/detail/pdf/' + type)
-            .then(res => {
-                if (res.status !== 200) {
-                    message.error('删除失败')
-                    return
-                }
-                message.success('删除成功')
-                let newObj = this.state
-                newObj[type] = ''
-                this.setState(newObj)
-            })
+    handleClick(type) {
+        let detail = {...this.state.detail,
+            ...{ [type]: this.fullDetail[type] }}
+        let showMore = {...this.state.showMore,
+            ...{ [type]: false }}
+        this.setState({
+            detail,
+            showMore,
+        })
     }
     render() {
-        const props = {
-            // accept: 'application/pdf',
+        const uploadProps = {
+            name: 'detail',
+            accept: 'text/csv',
+            action: this.props.url,
             showUploadList: false,
-            onChange(info) {
-                console.log(info.file.status)
-                if (info.file.status !== 'uploading') {
-                    console.log(info.file, info.fileList);
-                }
-                if (info.file.status === 'done') {
-                    // message.success(`${info.file.name} 上传成功`)
-                    window.location.reload();
-                } else if (info.file.status === 'error') {
-                    message.error(`${info.file.name} 上传失败`)
-                }
-            },
         }
-        return <Card title={this.state.name+" 贡献详情"}>
-            <Form onSubmit={e=>this.handleSubmit(e)}>
-                <FormItem label="未公开漏洞提交">
-                    <Input id="undisclosed" onChange={e=>this.handleChange(e)} value={this.state.detail.undisclosed}/>
-                </FormItem>
-                <FormItem label="CNNVD 数据使用">
-                    <Input id="ussage" onChange={e=>this.handleChange(e)} value={this.state.detail.ussage}/>
-                </FormItem>
-                <FormItem label="漏洞修复和消控工作协助">
-                    <Input id="assistant" onChange={e=>this.handleChange(e)} value={this.state.detail.assistant}/>
-                </FormItem>
-                <FormItem label="沟通配合">
-                    <Input id="communication" onChange={e=>this.handleChange(e)} value={this.state.detail.communication}/>
-                </FormItem>
-                <FormItem label="会议活动支撑">
-                    <Input id="meeting" onChange={e=>this.handleChange(e)} value={this.state.detail.meeting}/>
-                </FormItem>
-                <FormItem label="宣传推广支撑">
-                    <Input id="publicity" onChange={e=>this.handleChange(e)} value={this.state.detail.publicity}/>
-                </FormItem>
-                <FormItem label="产品试用支撑">
-                    <Input id="trial" onChange={e=>this.handleChange(e)} value={this.state.detail.trial}/>
-                </FormItem>
-                <FormItem label="重大漏洞/安全事件应急响应">
-                    <a onClick={()=>this.handleDownload('emergency')}>{this.state.emergency}</a>
-                    {(()=>{
-                        if(this.state.emergency)
-                            return <Popconfirm title="确认删除吗？" onConfirm={() => this.handleDelete('emergency')}>
-                                &nbsp;&nbsp;<a>删除</a>&nbsp;&nbsp;
-                            </Popconfirm> 
-                    })()}
-                    <Upload name="emergency" onChange={info=>this.handleUpload(info,'emergency')}
-                        action={this.props.match.url+'/detail/pdf/emergency'} showUploadList={false}>
-                        <Button icon="upload">上传附件</Button>
+        let display = []
+        const { name, detail, showMore } = this.state
+        for (let type of this.items) {
+            let count = 1
+            display.push(<div key={count}>
+                <h3 style={{ margin: '16px 0' }}>{type}</h3>
+                <List
+                    bordered
+                    dataSource={detail[type]}
+                    renderItem={item => (<List.Item>
+                        <i>{ count ++ }</i>&nbsp;&nbsp;{item}
+                    </List.Item>)}
+                >
+                    {
+                        showMore[type] ? <List.Item>
+                            <div style={{textAlign:'center',height:32,lineHeight: '32px'}}>
+                                <Button onClick={()=>this.handleClick(type)}>
+                                    显示全部
+                                </Button>
+                            </div>
+                        </List.Item> : null
+                    }
+                </List>
+            </div>)
+        }
+        return <div>
+            <Row>
+                <Col offset={1}>
+                    <h1 style={{
+                        display:'inline',
+                        marginRight: '16px',
+                        position: 'relative',
+                        top: '4px',
+                    }}>{name}</h1>
+                    <Upload {...uploadProps} onChange={info=>this.handleChange(info)}>
+                        <Button icon="upload">上传 xlsx 文件</Button>
                     </Upload>
-                </FormItem>
-                <FormItem label="安全报告提交">
-                    <a onClick={()=>this.handleDownload('report')}>{this.state.report}</a>
-                    {(()=>{
-                        if(this.state.report)
-                            return <Popconfirm title="确认删除吗？" onConfirm={() => this.handleDelete('report')}>
-                                &nbsp;&nbsp;<a>删除</a>&nbsp;&nbsp;
-                            </Popconfirm> 
-                    })()}
-                    <Upload name="report" onChange={info=>this.handleUpload(info,'report')}
-                        action={this.props.match.url+'/detail/pdf/report'} showUploadList={false}>
-                        <Button icon="upload">上传附件</Button>
-                    </Upload>
-                </FormItem>
-                <FormItem label="其他支撑">
-                    <a onClick={()=>this.handleDownload('other')}>{this.state.other}</a>
-                    {(()=>{
-                        if(this.state.other)
-                            return <Popconfirm title="确认删除吗？" onConfirm={() => this.handleDelete('other')}>
-                                &nbsp;&nbsp;<a>删除</a>&nbsp;&nbsp;
-                            </Popconfirm> 
-                    })()}
-                    <Upload name="other" onChange={info=>this.handleUpload(info,'other')}
-                        action={this.props.match.url+'/detail/pdf/other'} showUploadList={false}>
-                        <Button icon="upload">上传附件</Button>
-                    </Upload>
-                </FormItem>
-                <FormItem>
-                    <Button type="primary" htmlType="submit">保存</Button>
-                </FormItem>
-            </Form>
-        </Card>
+                </Col>
+            </Row>
+            <Row>
+                <Col span={20} offset={1}>
+                    {display}
+                    <h3 style={{margin: '16px 0'}}>PIE</h3>
+                    <div id="main" style={{
+                        width: '700px',
+                        height:'400px',
+                    }}></div>
+                </Col>
+            </Row>
+        </div>
     }
 }
