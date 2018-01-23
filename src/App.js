@@ -7,8 +7,14 @@ import { Layout, Menu } from 'antd'
 const { Header, Content, Footer } = Layout
 
 export default class App extends Component {
-  constructor(props) {
-    super(props)
+  componentWillMount() {
+    let href = window.location.href
+    if (href.indexOf('/do') > -1)
+      this.default = ['do']
+    else if (href.indexOf('/todo') > -1)
+      this.default = ['todo']
+    else
+      this.default = ['did']
   }
   render() {
     return <Router><Layout className="layout">
@@ -22,7 +28,7 @@ export default class App extends Component {
         <Menu
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={['do']}
+          defaultSelectedKeys={this.default}
           style={{ lineHeight: '64px' }}
         >
           <Menu.Item key="do">
