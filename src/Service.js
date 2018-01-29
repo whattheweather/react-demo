@@ -21,7 +21,6 @@ export function Put(path, params) {
 }
 
 export function Delete(path, params) {
-  console.log(JSON.stringify(params))
   return fetch(path, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },

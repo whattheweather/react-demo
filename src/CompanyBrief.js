@@ -1,16 +1,16 @@
 import React, { Component } from 'react'
-import HeaderOperations from './HeaderOperations'
 import { Get, Put, Delete } from './Service.js'
 import Download from 'downloadjs'
-import { message, Table, Input } from 'antd'
+import { Upload, Table, Input, Button, Icon,
+    Menu, Dropdown, message, Row, Col } from 'antd'
 import { Link } from 'react-router-dom'
 
 const EditableCell = ({ editable, value, onChange }) => (
     <div>
     {
         editable
-            ? <Input style={{margin:'-5px 0'}} value={value} onChange={e=>onChange(e.target.value)}/>
-            : value
+        ? <Input style={{margin:'-5px 0'}} value={value} onChange={e=>onChange(e.target.value)}/>
+        : value
     }
     </div>
 )
@@ -104,6 +104,10 @@ export default class CompanyBrief extends Component {
                 this.columns.splice(11, 1)
                 this.columns.splice(4, 1)
                 break
+            case 'todo':
+                this.columns[2].title = '拟申请级别'
+                this.columns.splice(3, 1)
+                break
             default:
                 this.columns.splice(3, 1)
                 break
@@ -113,6 +117,15 @@ export default class CompanyBrief extends Component {
             selectedRows: [],
             lots: [],
         }
+    }
+    componentDidMount() {
+        this.getData(this.selectedLot, () => { this.updateLots() })
+    }
+    componentWillUpdate() {
+        this.count = 1
+    }
+    componentDidUpdate() {    
+        this.count = 1
     }
     getData(lot, callback) {
         callback = callback || (() => {})
@@ -142,15 +155,6 @@ export default class CompanyBrief extends Component {
             selectedRows: [],
         })
         this.cacheData = newData.map(item => ({ ...item }))            
-    }
-    componentDidMount() {
-        this.getData(this.selectedLot, () => { this.updateLots() })
-    }
-    componentWillUpdate() {
-        this.count = 1
-    }
-    componentDidUpdate() {    
-        this.count = 1
     }
     renderColumns(text, record, column) {
         return <EditableCell
@@ -188,7 +192,6 @@ export default class CompanyBrief extends Component {
     cancel(key) {
         const newData = [...this.state.data]
         const target = newData.filter(item => key === item._id)[0]
-        console.log(this.cacheData)
         if (target) {
             let oldTarget = this.cacheData.filter(item => key === item._id)[0]
             let oldKeys = Object.keys(oldTarget)
@@ -197,7 +200,6 @@ export default class CompanyBrief extends Component {
             if (oldKeys.length < keys.length)
                 for (let key of keys)
                     oldKeys.indexOf(key) === -1 && (diff[key] = '')
-            console.log(diff)
             Object.assign(target, diff, oldTarget)
             delete target.editable
             this.setState({ data: newData })
@@ -241,21 +243,73 @@ export default class CompanyBrief extends Component {
             })
     }
     render() {
-        const rowSelection = {
-            selectedRowKeys: this.state.selectedRows,
+        let { selectedRows, lots } = this.state
+        let rowSelection = {
+            selectedRowKeys: selectedRows,
             onChange: keys=>this.setState({selectedRows:keys}),
         }
-        return <div>
-            <HeaderOperations
-                url={this.url}
-                path={this.path}
-                lots={this.state.lots}
-                selectedRows={this.state.selectedRows}
-                onDelete={()=>this.delete()}
-                onMove={()=>this.move()}
-                onDownload={()=>this.download()}
-                onUpload={()=>this.getData('all',()=>{this.updateLots()})}
-                onSelect={lot=>this.getData(lot,()=>{this.selectedLot=lot})}/>
+        let uploadProps = {
+            name: 'csv',
+            accept: 'text/csv',
+            action: this.url + '/csv',
+            showUploadList: false,
+            onChange: info=>{
+                if (info.file.status === 'done')
+                    this.getData('all', () => { this.updateLots() })
+                else if (info.file.status === 'error')
+                    message.error(`${info.file.name} 上传失败`)
+            }
+        }
+        let buttonDisable = selectedRows.length === 0
+        let lotMenu = <Menu
+            selectable
+            onSelect={({key})=>this.getData(key,()=>{this.selectedLot=key})}>
+            <Menu.Item key='all'>全部批次</Menu.Item>
+            { lots.map(val => (<Menu.Item key={val}>{val}</Menu.Item>)) }
+        </Menu>
+        return <div><Row type="flex" justify="space-between">
+                <Col>
+                {
+                    this.path === 'did'
+                    ? null
+                    : <Button
+                        style={{marginRight:'10px'}}
+                        disabled={buttonDisable}
+                        onClick={()=>this.move()}>
+                        {
+                            this.path === 'do'
+                            ? '移动至失效单位'
+                            : '移动至现有支撑单位'
+                        }
+                    </Button>
+                }
+                    <Button
+                        type="danger"
+                        disabled={buttonDisable}
+                        onClick={()=>this.delete()}>
+                        删除
+                    </Button>
+                </Col>
+                <Col>
+                    <Upload {...uploadProps}>
+                        <Button icon="upload">上传 csv 文件到这张表</Button>
+                    </Upload>
+                    {
+                        this.path === 'todo'
+                        ? null
+                        : <Dropdown overlay={lotMenu} >
+                            <Button style={{marginLeft:'10px'}}>
+                                选择批次 <Icon type="down" />
+                            </Button>
+                        </Dropdown>
+                    }
+                    <Button type="primary" icon="download"
+                        style={{marginLeft:'10px'}}
+                        onClick={()=>this.download()}>
+                        导出当前表为 csv 文件
+                    </Button>
+                </Col>
+            </Row>
             <Table style={{marginTop:'24px'}}
                 rowSelection={rowSelection}
                 rowKey="_id"

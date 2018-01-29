@@ -28,10 +28,10 @@ export default class CompanyDetail extends Component {
         for (let item of this.items)
             this.state.detail[item]
                 // && this.state.detail[item].length
-                    && data.push({
-                        name: item,
-                        value: this.state.detail[item].length
-                    })
+                && data.push({
+                    name: item,
+                    value: this.state.detail[item].length
+                })
         echarts.init(document.getElementById('main')).setOption({
             series: {
                 type: 'pie',
@@ -41,10 +41,9 @@ export default class CompanyDetail extends Component {
                 trigger: 'item',
                 formatter: "{c} ({d}%)"
             },
-        });
+        })
     }
     sliceDetail(data) {
-        console.log(data)
         this.fullDetail = data
         let tmpDetail = {}
         let showMore = {}
@@ -59,17 +58,15 @@ export default class CompanyDetail extends Component {
             showMore,
         })
     }
-    handleChange(info) {
+    upload(info) {
         if (info.file.status === 'done')
             this.sliceDetail(info.file.response)
         else if (info.file.status === 'error')
             message.error(`${info.file.name} 上传失败`)
     }
-    handleClick(type) {
-        let detail = {...this.state.detail,
-            ...{ [type]: this.fullDetail[type] }}
-        let showMore = {...this.state.showMore,
-            ...{ [type]: false }}
+    showAll(type) {
+        let detail = {...this.state.detail, ...{ [type]: this.fullDetail[type] }}
+        let showMore = {...this.state.showMore, ...{ [type]: false }}
         this.setState({
             detail,
             showMore,
@@ -95,15 +92,17 @@ export default class CompanyDetail extends Component {
                         <i>{ count ++ }</i>&nbsp;&nbsp;{item}
                     </List.Item>)}
                 >
-                    {
-                        showMore[type] ? <List.Item>
-                            <div style={{textAlign:'center',height:32,lineHeight: '32px'}}>
-                                <Button onClick={()=>this.handleClick(type)}>
-                                    显示全部
-                                </Button>
-                            </div>
-                        </List.Item> : null
-                    }
+                {
+                    showMore[type]
+                    ? <List.Item>
+                        <div style={{textAlign:'center',height:32,lineHeight: '32px'}}>
+                            <Button onClick={()=>this.showAll(type)}>
+                                显示全部
+                            </Button>
+                        </div>
+                    </List.Item>
+                    : null
+                }
                 </List>
             </div>)
         }
@@ -116,8 +115,8 @@ export default class CompanyDetail extends Component {
                         position: 'relative',
                         top: '4px',
                     }}>{name}</h1>
-                    <Upload {...uploadProps} onChange={info=>this.handleChange(info)}>
-                        <Button icon="upload">上传 xlsx 文件</Button>
+                    <Upload {...uploadProps} onChange={info=>this.upload(info)}>
+                        <Button icon="upload">导入 xlsx 文件</Button>
                     </Upload>
                 </Col>
             </Row>
