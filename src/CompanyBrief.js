@@ -20,6 +20,7 @@ export default class CompanyBrief extends Component {
         this.lots = []
         this.count = 1
         this.url = this.props.match.url
+        console.log(this.url)
         let path = this.url.split('/')
         this.path = path[path.length - 1]
         this.selectedLot = 'all'
@@ -129,7 +130,7 @@ export default class CompanyBrief extends Component {
     }
     getData(lot, callback) {
         callback = callback || (() => {})
-        Get(this.url, { lot }).then(res => res.json())
+        Get('/api' + this.url, { lot }).then(res => res.json())
             .then(data => {
                 this.cacheData = data.map(item => ({ ...item }))
                 this.setState({ data }, () => callback())
@@ -181,7 +182,7 @@ export default class CompanyBrief extends Component {
     save(key) {
         const newData = [...this.state.data]
         const target = newData.filter(item => key === item._id)[0]
-        target && Put(this.url + '/' + key, target).then(res => {
+        target && Put('/api' + this.url + '/' + key, target).then(res => {
             if (res.statusText === 'OK') {
                 delete target.editable
                 this.setState({ data: newData })
@@ -207,7 +208,7 @@ export default class CompanyBrief extends Component {
     }
     move() {
         let to = this.path === 'do' ? 'did' : 'do'
-        Put(this.url, { ids: this.state.selectedRows, to })
+        Put('/api' + this.url, { ids: this.state.selectedRows, to })
             .then(res => {
                 if (res.statusText === 'OK')           
                     this.deleteSelected()
@@ -216,7 +217,7 @@ export default class CompanyBrief extends Component {
             })
     }
     delete() {
-        Delete(this.url, { ids: this.state.selectedRows }).then(res => {
+        Delete('/api' + this.url, { ids: this.state.selectedRows }).then(res => {
             if (res.statusText === 'OK')           
                 this.deleteSelected()
             else
@@ -224,7 +225,7 @@ export default class CompanyBrief extends Component {
         })
     }
     download() {
-        Get(this.url + '/csv', { lot: this.selectedLot })
+        Get('/api' + this.url + '/csv', { lot: this.selectedLot })
             .then(res => res.blob()).then(blob => {
                 let name
                 switch (this.path) {

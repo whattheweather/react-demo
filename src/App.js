@@ -8,13 +8,13 @@ const { Header, Content, Footer } = Layout
 
 export default class App extends Component {
   componentWillMount() {
-    let href = window.location.href
-    if (href.indexOf('/do') > -1)
-      this.default = ['do']
+    let href = window.location.pathname
+    if (href.indexOf('/did') > -1)
+      this.default = ['did']
     else if (href.indexOf('/todo') > -1)
       this.default = ['todo']
     else
-      this.default = ['did']
+      this.default = ['do']
   }
   render() {
     return <Router><Layout className="layout">
@@ -46,10 +46,10 @@ export default class App extends Component {
         <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
           <Route exact path='/' render={()=><Redirect to='/zcdw/do'/>}/>
           <Route exact path='/zcdw' render={()=><Redirect to='/zcdw/do'/>}/>
-          <Route path='/zcdw/do' exact component={CompanyBrief}/>
-          <Route path='/zcdw/todo' exact component={CompanyBrief}/>
-          <Route path='/zcdw/did' exact component={CompanyBrief}/>
-          <Route path='/zcdw/:path/:id/detail' exact component={CompanyDetail}/>
+          <Route exact path='/zcdw/do' component={CompanyBrief}/>
+          <Route exact path='/zcdw/todo' component={CompanyBrief}/>
+          <Route exact path='/zcdw/did' component={CompanyBrief}/>
+          <Route exact path='/zcdw/:path/:id/detail' component={CompanyDetail}/>
         </div>
       </Content>
       <Footer style={{ textAlign: 'center' }}>

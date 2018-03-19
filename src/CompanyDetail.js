@@ -17,7 +17,7 @@ export default class CompanyDetail extends Component {
         }
     }
     componentDidMount() {
-        Get(this.props.match.url).then(res => res.json())
+        Get('/api' + this.props.match.url).then(res => res.json())
             .then(res => {
                 this.sliceDetail(res.detail)
                 this.setState({ name: res.name })
@@ -76,7 +76,7 @@ export default class CompanyDetail extends Component {
         const uploadProps = {
             name: 'detail',
             accept: 'text/csv',
-            action: this.props.url,
+            action: '/api' + this.props.url,
             showUploadList: false,
         }
         let display = []
