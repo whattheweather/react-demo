@@ -32,24 +32,23 @@ export default class App extends Component {
           style={{ lineHeight: '64px' }}
         >
           <Menu.Item key="do">
-            <Link to='/zcdw/do' className="nav-text">现有支撑单位</Link>
+            <Link to='/do' className="nav-text">现有支撑单位</Link>
           </Menu.Item>
           <Menu.Item key="todo">
-            <Link to='/zcdw/todo' className="nav-text">待申请单位</Link>
+            <Link to='/todo' className="nav-text">待申请单位</Link>
           </Menu.Item>
           <Menu.Item key="did">
-            <Link to='/zcdw/did' className="nav-text">失效单位</Link>
+            <Link to='/did' className="nav-text">失效单位</Link>
           </Menu.Item>
         </Menu>
       </Header>
       <Content style={{ padding: '0 50px' }}>
         <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
-          <Route exact path='/' render={()=><Redirect to='/zcdw/do'/>}/>
-          <Route exact path='/zcdw' render={()=><Redirect to='/zcdw/do'/>}/>
-          <Route exact path='/zcdw/do' component={CompanyBrief}/>
-          <Route exact path='/zcdw/todo' component={CompanyBrief}/>
-          <Route exact path='/zcdw/did' component={CompanyBrief}/>
-          <Route exact path='/zcdw/:path/:id/detail' component={CompanyDetail}/>
+          <Route path='/' exact render={()=><Redirect to='/do'/>}/>
+          <Route path='/do' exact component={CompanyBrief}/>
+          <Route path='/todo' exact component={CompanyBrief}/>
+          <Route path='/did' exact component={CompanyBrief}/>
+          <Route path='/:path/:id/detail' exact component={CompanyDetail}/>
         </div>
       </Content>
       <Footer style={{ textAlign: 'center' }}>

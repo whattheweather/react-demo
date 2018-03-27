@@ -20,12 +20,12 @@ export default class CompanyBrief extends Component {
         this.lots = []
         this.count = 1
         this.url = this.props.match.url
-        console.log(this.url)
         let path = this.url.split('/')
         this.path = path[path.length - 1]
         this.selectedLot = 'all'
         this.columns = [{ // 0
-            title: '#',
+            title: '序号',
+            width: '52px',
             dataIndex: this.count,
             render: (text, record) => {
             return <div>
@@ -33,17 +33,17 @@ export default class CompanyBrief extends Component {
             </div>
             },
         }, { // 1
-            title: '单位名称',
-            dataIndex: 'name',
-            render: (text, record) => this.renderColumns(text, record, 'name'),
-        }, { // 2
-            title: '级别',
-            dataIndex: 'rate',
-            render: (text, record) => this.renderColumns(text, record, 'rate'),
-        }, { // 3
             title: '批次',
             dataIndex: 'lot',
             render: (text, record) => this.renderColumns(text, record, 'lot'),
+        }, { // 2
+            title: '单位名称',
+            dataIndex: 'name',
+            render: (text, record) => this.renderColumns(text, record, 'name'),
+        }, { // 3
+            title: '级别',
+            dataIndex: 'rate',
+            render: (text, record) => this.renderColumns(text, record, 'rate'),
         }, { // 4
             title: '状态',
             dataIndex: 'status',
@@ -64,10 +64,10 @@ export default class CompanyBrief extends Component {
             title: '其他联系人',
             dataIndex: 'others',
             render: (text, record) => this.renderColumns(text, record, 'others'),
-        }, { // 9
-            title: '过期联系人',
-            dataIndex: 'expire',
-            render: (text, record) => this.renderColumns(text, record, 'expire'),
+        // }, { // 9
+        //     title: '过期联系人',
+        //     dataIndex: 'expire',
+        //     render: (text, record) => this.renderColumns(text, record, 'expire'),
         }, { // 10
             title: '贡献评级',
             dataIndex: 'contribution',
@@ -93,7 +93,7 @@ export default class CompanyBrief extends Component {
                         : <span>
                             <a onClick={()=>this.edit(record._id)}>编辑</a>
                             &nbsp;|&nbsp;
-                            <Link to={this.url+'/'+record._id+'/detail'}>贡献详情</Link>
+                            <Link to={this.url+'/'+record._id+'/detail'}>详情</Link>
                         </span>
                 }
                 </div>
@@ -102,7 +102,8 @@ export default class CompanyBrief extends Component {
         }]
         switch (this.path) {
             case 'do':
-                this.columns.splice(11, 1)
+                // this.columns.splice(11, 1)
+                this.columns.splice(10, 1)
                 this.columns.splice(4, 1)
                 break
             case 'todo':
@@ -130,7 +131,7 @@ export default class CompanyBrief extends Component {
     }
     getData(lot, callback) {
         callback = callback || (() => {})
-        Get('/api' + this.url, { lot }).then(res => res.json())
+        Get(`/api${this.url}`, { lot }).then(res => res.json())
             .then(data => {
                 this.cacheData = data.map(item => ({ ...item }))
                 this.setState({ data }, () => callback())
@@ -182,7 +183,7 @@ export default class CompanyBrief extends Component {
     save(key) {
         const newData = [...this.state.data]
         const target = newData.filter(item => key === item._id)[0]
-        target && Put('/api' + this.url + '/' + key, target).then(res => {
+        target && Put(`/api${this.url}/${key}`, target).then(res => {
             if (res.statusText === 'OK') {
                 delete target.editable
                 this.setState({ data: newData })
@@ -208,7 +209,7 @@ export default class CompanyBrief extends Component {
     }
     move() {
         let to = this.path === 'do' ? 'did' : 'do'
-        Put('/api' + this.url, { ids: this.state.selectedRows, to })
+        Put(`/api${this.url}`, { ids: this.state.selectedRows, to })
             .then(res => {
                 if (res.statusText === 'OK')           
                     this.deleteSelected()
@@ -217,7 +218,7 @@ export default class CompanyBrief extends Component {
             })
     }
     delete() {
-        Delete('/api' + this.url, { ids: this.state.selectedRows }).then(res => {
+        Delete(`/api${this.url}`, { ids: this.state.selectedRows }).then(res => {
             if (res.statusText === 'OK')           
                 this.deleteSelected()
             else
@@ -225,7 +226,7 @@ export default class CompanyBrief extends Component {
         })
     }
     download() {
-        Get('/api' + this.url + '/csv', { lot: this.selectedLot })
+        Get(`/api${this.url}/csv`, { lot: this.selectedLot })
             .then(res => res.blob()).then(blob => {
                 let name
                 switch (this.path) {

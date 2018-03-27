@@ -17,7 +17,7 @@ export default class CompanyDetail extends Component {
         }
     }
     componentDidMount() {
-        Get('/api' + this.props.match.url).then(res => res.json())
+        Get(`/api${this.props.match.url}`).then(res => res.json())
             .then(res => {
                 this.sliceDetail(res.detail)
                 this.setState({ name: res.name })
@@ -76,20 +76,21 @@ export default class CompanyDetail extends Component {
         const uploadProps = {
             name: 'detail',
             accept: 'text/csv',
-            action: '/api' + this.props.url,
+            action: `/api${this.props.match.url}`,
             showUploadList: false,
         }
         let display = []
         const { name, detail, showMore } = this.state
+        let count = 0
         for (let type of this.items) {
-            let count = 1
-            display.push(<div key={count}>
-                <h3 style={{ margin: '16px 0' }}>{type}</h3>
+            let idx = 1
+            display.push(<div key={count++}>
+                <h3 style={{margin:'16px 0'}}>{type}</h3>
                 <List
                     bordered
                     dataSource={detail[type]}
-                    renderItem={item => (<List.Item>
-                        <i>{ count ++ }</i>&nbsp;&nbsp;{item}
+                    renderItem={item=>(<List.Item>
+                        <i>{idx++}</i>&nbsp;&nbsp;{item}
                     </List.Item>)}
                 >
                 {
