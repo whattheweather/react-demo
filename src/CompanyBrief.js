@@ -132,10 +132,8 @@ export default class CompanyBrief extends Component {
     }
     getData(lot, callback) {
         callback = callback || (() => {})
-        console.log(this.url, lot)
         Get(`/api${this.url}`, { lot }).then(res => res.json())
             .then(data => {
-                console.log(data)
                 this.cacheData = data.map(item => ({ ...item }))
                 this.setState({ data }, () => callback())
             })
