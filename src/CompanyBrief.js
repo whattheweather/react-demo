@@ -78,6 +78,7 @@ export default class CompanyBrief extends Component {
             render: (text, record) => this.renderColumns(text, record, 'remark'),
         }, { // 12
             title: '操作',
+            width: '169px',
             dataIndex: 'operation',
             render: (text, record) => {
             const { editable } = record
@@ -131,8 +132,10 @@ export default class CompanyBrief extends Component {
     }
     getData(lot, callback) {
         callback = callback || (() => {})
+        console.log(this.url, lot)
         Get(`/api${this.url}`, { lot }).then(res => res.json())
             .then(data => {
+                console.log(data)
                 this.cacheData = data.map(item => ({ ...item }))
                 this.setState({ data }, () => callback())
             })
@@ -253,7 +256,7 @@ export default class CompanyBrief extends Component {
         let uploadProps = {
             name: 'csv',
             accept: 'text/csv',
-            action: this.url + '/csv',
+            action: `/api/${this.url}/csv`,
             showUploadList: false,
             onChange: info=>{
                 if (info.file.status === 'done')

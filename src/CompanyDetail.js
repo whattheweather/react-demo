@@ -6,9 +6,9 @@ import echarts from 'echarts'
 export default class CompanyDetail extends Component {
     constructor(props) {
         super(props)
-        this.items = ['重大漏洞及安全事件预警支撑', '未公开漏洞提交', '安全报告提交',
+        this.items = ['应急响应支撑', '未公开漏洞支撑', '安全报告支撑',
             '厂商漏洞修复与销控情况', 'CNNVD数据使用', '沟通配合情况', '会议活动支撑',
-            '宣传推广支撑', '产品试用', '其他支撑']
+            '宣传推广支撑', '产品试用', '技术交流支撑']
         this.fullDetail = {}
         this.state = { 
             name: '',
